@@ -3,16 +3,12 @@
 -export([cipher_suites/1,
          versions/0,
          protocol/0,
-         server_port/0]).
+         server_port/0,
+         tls_v13_ciphers/0
+        ]).
 
 cipher_suites(server) ->
-    %% intentially testing tslv1.3 ciper suites in ssl options
-    ["TLS_AES_256_GCM_SHA384",
-     "TLS_AES_128_GCM_SHA256",
-     "TLS_CHACHA20_POLY1305_SHA256",
-     "TLS_AES_128_CCM_SHA256",
-     "TLS_AES_128_CCM_8_SHA256" |
-     ssl:cipher_suites(all, 'tlsv1.2', openssl)];
+    ssl:cipher_suites(all, 'tlsv1.2', openssl);
 cipher_suites(client) ->
     ["ECDHE-ECDSA-AES256-GCM-SHA384"].
 
@@ -32,3 +28,11 @@ server_port() ->
         false -> 9999;
         N -> list_to_integer(N)
     end.
+
+tls_v13_ciphers() ->
+    ["TLS_AES_256_GCM_SHA384",
+     "TLS_AES_128_GCM_SHA256",
+     "TLS_CHACHA20_POLY1305_SHA256",
+     "TLS_AES_128_CCM_SHA256",
+     "TLS_AES_128_CCM_8_SHA256"].
+
