@@ -1,17 +1,17 @@
-# psker
+# tlser
 
-A demo application to test PSK (PreShared Key) cipher suites.
+A demo application to test erlang TLS server/client interactions
 
 ## Start server
 
 ```
-$ export PSKER_START=server
+$ export TLSER_START=server
 $ rebar3 shell
 ```
 
 ## Start client
 
 ```
-$ export PSKER_START=client
+$ export TLSER_START=client
 $ rebar3 shell
 ```

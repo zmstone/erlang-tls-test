@@ -1,4 +1,4 @@
--module(psker_client).
+-module(tlser_client).
 
 -behaviour(gen_statem).
 
@@ -28,18 +28,24 @@ code_change(_Vsn, State, Data, _Extra) ->
 init([]) ->
     {ok, Pwd} = file:get_cwd(),
     io:format(user, "[client] pwd=~p~n", [Pwd]),
-    TlsFile = fun(Name) -> filename:join([Pwd, ecc, Name]) end,
+    TlsFile = fun(Name) -> filename:join([Pwd, tls, Name]) end,
     Opts = [{cacertfile, TlsFile("ca.pem")},
             {certfile, TlsFile("client.pem")},
             {keyfile, TlsFile("client.key")},
             {verify, verify_peer},
-            {versions, ['tlsv1.2', 'tlsv1.1']}, %% can not use tlsv1.3 for psk
-            {psk_identity, atom_to_list(name())},
-            {user_lookup_fun, {fun psker:lookup/3, #{}}},
-            {ciphers, psker:cipher_suites(client)},
+            {protocol, tlser:protocol()},
+            {versions, tlser:versions()},
+            {ciphers, tlser:cipher_suites(client)},
             {log_level, debug}
            ],
-    {ok, Socket} = ssl:connect("localhost", 9999, Opts, infinity),
+    io:format(user, "[client] connecting to server ~s:~p~n", [server_host(), server_port()]),
+    {ok, Socket} =
+        try
+            ssl:connect(server_host(), server_port(), Opts, infinity)
+        catch
+            C:E:ST->
+                error({C, E, ST})
+        end,
     io:format(user, "[client] connected to server~n", []),
     {ok, _State = connected, _Data = #{socket => Socket},
      [{state_timeout, 100, send}]}.
@@ -47,10 +53,17 @@ init([]) ->
 callback_mode() ->
     handle_event_function.
 
-
 handle_event(state_timeout, send, _State, #{socket := Socket}) ->
     ssl:send(Socket, "hey"),
     {keep_state_and_data, [{state_timeout, 5000, send}]};
 handle_event(EventType, Event, _State, _Data) ->
     io:format(user, "[client] ignored event: ~p: ~p~n", [EventType, Event]),
     keep_state_and_data.
+
+server_host() ->
+    case os:getenv("TLSER_SERVER_HOST") of
+        false -> "localhost";
+        Host -> Host
+    end.
+
+server_port() -> tlser:server_port().

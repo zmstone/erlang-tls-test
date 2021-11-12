@@ -1,9 +1,9 @@
 %%%-------------------------------------------------------------------
-%% @doc psker top level supervisor.
+%% @doc tlser top level supervisor.
 %% @end
 %%%-------------------------------------------------------------------
 
--module(psker_sup).
+-module(tlser_sup).
 
 -behaviour(supervisor).
 
@@ -30,14 +30,14 @@ init([]) ->
                  intensity => 0,
                  period => 1},
     ChildSpec =
-        case os:getenv("PSKER_START") of
+        case os:getenv("TLSER_START") of
             "server" ->
-                #{id => psker_server,
-                  start => {psker_server, start_link, []}
+                #{id => tlser_server,
+                  start => {tlser_server, start_link, []}
                  };
             "client" ->
-                #{id => psker_client,
-                  start => {psker_client, start_link, []}
+                #{id => tlser_client,
+                  start => {tlser_client, start_link, []}
                  }
         end,
     {ok, {SupFlags, [ChildSpec]}}.

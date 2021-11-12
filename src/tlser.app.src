@@ -1,8 +1,8 @@
-{application, psker,
+{application, tlser,
  [{description, "An OTP application"},
   {vsn, "0.1.0"},
   {registered, []},
-  {mod, {psker_app, []}},
+  {mod, {tlser_app, []}},
   {applications,
    [kernel,
     stdlib
