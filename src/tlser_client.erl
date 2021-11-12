@@ -26,9 +26,9 @@ code_change(_Vsn, State, Data, _Extra) ->
     {ok, State, Data}.
 
 init([]) ->
-    {ok, Pwd} = file:get_cwd(),
-    io:format(user, "[client] pwd=~p~n", [Pwd]),
-    TlsFile = fun(Name) -> filename:join([Pwd, tls, Name]) end,
+    io:format(user, "client > ", []),
+    CertDir = tlser:cert_dir(),
+    TlsFile = fun(Name) -> filename:join([CertDir, Name]) end,
     Opts = [{cacertfile, TlsFile("ca.pem")},
             {certfile, TlsFile("client.pem")},
             {keyfile, TlsFile("client.key")},
@@ -38,7 +38,7 @@ init([]) ->
             {ciphers, tlser:cipher_suites(client)},
             {log_level, debug}
            ],
-    io:format(user, "[client] connecting to server ~s:~p~n", [server_host(), server_port()]),
+    io:format(user, "client> connecting to server ~s:~p~n", [server_host(), server_port()]),
     {ok, Socket} =
         try
             ssl:connect(server_host(), server_port(), Opts, infinity)
@@ -46,7 +46,7 @@ init([]) ->
             C:E:ST->
                 error({C, E, ST})
         end,
-    io:format(user, "[client] connected to server~n", []),
+    io:format(user, "client> connected to server~n", []),
     {ok, _State = connected, _Data = #{socket => Socket},
      [{state_timeout, 100, send}]}.
 
@@ -57,7 +57,7 @@ handle_event(state_timeout, send, _State, #{socket := Socket}) ->
     ssl:send(Socket, "hey"),
     {keep_state_and_data, [{state_timeout, 5000, send}]};
 handle_event(EventType, Event, _State, _Data) ->
-    io:format(user, "[client] ignored event: ~p: ~p~n", [EventType, Event]),
+    io:format(user, "client> ignored event: ~p: ~p~n", [EventType, Event]),
     keep_state_and_data.
 
 server_host() ->
