@@ -6,6 +6,7 @@
          server_port/0]).
 
 cipher_suites(server) ->
+    %% intentially testing tslv1.3 ciper suites in ssl options
     ["TLS_AES_256_GCM_SHA384",
      "TLS_AES_128_GCM_SHA256",
      "TLS_CHACHA20_POLY1305_SHA256",
@@ -24,7 +25,7 @@ protocol() ->
 versions() -> versions(protocol()).
 
 versions(dtls) -> ['dtlsv1.2'];
-versions(tls) -> ['tlsv1.2', 'tlsv1.1']. %% can not use tlsv1.3 for psk
+versions(tls) -> ['tlsv1.2', 'tlsv1.1'].
 
 server_port() ->
     case os:getenv("TLSER_SERVER_PORT") of
