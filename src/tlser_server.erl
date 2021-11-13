@@ -27,14 +27,10 @@ code_change(_Vsn, State, Data, _Extra) ->
 
 init([]) ->
     io:format(user, "server> ", []),
-    CertDir = tlser:cert_dir(),
-    TlsFile = fun(Name) -> filename:join([CertDir, Name]) end,
     {ok, ListenSock} =
     ssl:listen(tlser:server_port(),
-                   [{cacertfile, TlsFile("ca.pem")},
-                    {certfile, TlsFile("server.pem")},
-                    {keyfile, TlsFile("server.key")},
-                    {protocol, tlser:protocol()},
+                  tlser:files() ++
+                  [ {protocol, tlser:protocol()},
                     {reuseaddr, true},
                     {verify, verify_peer},
                     {versions, tlser:versions()},

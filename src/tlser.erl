@@ -1,16 +1,19 @@
 -module(tlser).
 
--export([cipher_suites/1,
-         versions/0,
-         protocol/0,
-         server_port/0,
-         tls_v13_ciphers/0,
-         cert_dir/0
+-export([ cipher_suites/1
+        , versions/0
+        , protocol/0
+        , server_port/0
+        , tls_v13_ciphers/0
+        , cert_dir/0
+        , which_side/0
+        , files/0
         ]).
 
 cipher_suites(server) ->
     ssl:cipher_suites(all, 'tlsv1.2', openssl);
 cipher_suites(client) ->
+    %ssl:cipher_suites(all, 'tlsv1.2', openssl).
     case os:getenv("TLSER_CLIENT_CIPHERS") of
         false -> ["ECDHE-ECDSA-AES256-GCM-SHA384", "ECDHE-RSA-AES256-GCM-SHA384"];
         Other -> string:tokens(Other, ",")
@@ -42,9 +45,37 @@ tls_v13_ciphers() ->
 
 cert_dir() ->
     {ok, Pwd} = file:get_cwd(),
-    R = case os:getenv("TLSER_CERT_TYPE") of
-            false -> rsa;
-            T -> filename:join([Pwd, T])
+    case cert_type() of
+        vendor -> filename:join([Pwd, vendor, which_side()]);
+        Type -> filename:join([Pwd, Type])
+    end.
+
+cert_type() ->
+    case os:getenv("TLSER_CERT_TYPE") of
+       false -> rsa;
+       "rsa" -> rsa;
+       "ecc" -> ecc;
+       "vendor" -> vendor
+    end.
+
+which_side() ->
+    case os:getenv("TLSER_START") of
+        "server" -> server;
+        "client" -> client
+    end.
+
+files() ->
+    Dir = cert_dir(),
+    io:format(user, "using certs in: ~s~n", [Dir]),
+    Files =
+        case cert_type() of
+            vendor ->
+                ["ca.crt", "client.crt", "private.key"];
+            _ ->
+                Name = atom_to_list(which_side()),
+                ["ca.pem", Name ++ ".pem", Name ++ ".key"]
         end,
-    io:format(user, "using certs in: ~s~n", [R]),
-    R.
+    Opts = [cacertfile, certfile, keyfile],
+    lists:map(fun({OptName, FileName}) ->
+                      {OptName, filename:join(Dir, FileName)}
+              end, lists:zip(Opts, Files)).

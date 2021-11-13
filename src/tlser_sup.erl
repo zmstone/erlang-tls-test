@@ -30,12 +30,12 @@ init([]) ->
                  intensity => 0,
                  period => 1},
     ChildSpec =
-        case os:getenv("TLSER_START") of
-            "server" ->
+        case tlser:which_side() of
+            server ->
                 #{id => tlser_server,
                   start => {tlser_server, start_link, []}
                  };
-            "client" ->
+            client ->
                 #{id => tlser_client,
                   start => {tlser_client, start_link, []}
                  }

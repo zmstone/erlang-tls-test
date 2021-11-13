@@ -27,12 +27,8 @@ code_change(_Vsn, State, Data, _Extra) ->
 
 init([]) ->
     io:format(user, "client > ", []),
-    CertDir = tlser:cert_dir(),
-    TlsFile = fun(Name) -> filename:join([CertDir, Name]) end,
-    Opts = [{cacertfile, TlsFile("ca.pem")},
-            {certfile, TlsFile("client.pem")},
-            {keyfile, TlsFile("client.key")},
-            {verify, verify_peer},
+    Opts = tlser:files() ++
+           [{verify, verify_none},
             {protocol, tlser:protocol()},
             {versions, tlser:versions()},
             {ciphers, tlser:cipher_suites(client)},
