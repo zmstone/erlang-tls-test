@@ -45,13 +45,13 @@ tls_v13_ciphers() ->
 
 cert_dir() ->
     {ok, Pwd} = file:get_cwd(),
-    case cert_type() of
+    case certs_dir() of
         vendor -> filename:join([Pwd, vendor, which_side()]);
         Type -> filename:join([Pwd, Type])
     end.
 
-cert_type() ->
-    case os:getenv("TLSER_CERT_TYPE") of
+certs_dir() ->
+    case os:getenv("TLSER_CERTS") of
        false -> rsa;
        "rsa" -> rsa;
        "ecc" -> ecc;
@@ -68,7 +68,7 @@ files() ->
     Dir = cert_dir(),
     io:format(user, "using certs in: ~s~n", [Dir]),
     Files =
-        case cert_type() of
+        case certs_dir() of
             vendor ->
                 ["ca.crt", "client.crt", "private.key"];
             _ ->

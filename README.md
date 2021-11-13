@@ -5,18 +5,16 @@ A demo application to run TLS/DTLS client & server.
 ## Start server
 
 ```
-$ export TLSER_START=server
-$ rebar3 shell
+./run.sh server
 ```
 
 ## Start client
 
 ```
-$ export TLSER_START=client
-$ rebar3 shell
+./run.sh client
 ```
 
-## Other environment variables
+## More configs via environment variables
 
 ### For client
 
@@ -27,4 +25,4 @@ $ rebar3 shell
 
 * `TLSER_SERVER_PORT`: default 9999, used to specify server port number
 * `TLSER_PROTOCOL`: set to `dtls` or `tls` (default)
-* `TLSER_CERT_TYPE`: set to `rsa` (default) or `ecc`
+* `TLSER_CERT`: set to `rsa` (default) or `ecc`
