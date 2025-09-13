@@ -36,7 +36,7 @@ init([]) ->
                     {versions, tlser:versions()},
                     {ciphers, tlser:cipher_suites(server)},
                     {active, true},
-                    {log_level, debug}
+                    {log_level, tlser:log_level()}
                    ]),
     {ok, _State = listening, _Data = #{listening => ListenSock}}.
 

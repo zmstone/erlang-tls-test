@@ -8,6 +8,7 @@
         , cert_dir/0
         , which_side/0
         , files/0
+        , log_level/0
         ]).
 
 cipher_suites(server) ->
@@ -93,3 +94,11 @@ files() ->
     lists:map(fun({OptName, FileName}) ->
                       {OptName, filename:join(Dir, FileName)}
               end, lists:zip(Opts, Files)).
+
+log_level() ->
+    case os:getenv("TLSER_LOG_LEVEL") of
+        false ->
+            notice;
+        "debug" ->
+            debug
+    end.

@@ -24,6 +24,7 @@ A demo application to run TLS/DTLS client & server.
 
 ### For both server and client
 
+- `TLSER_LOG_LEVEL`: set "debug" to make ssl lib print debug log level.
 - `TLSER_SERVER_PORT`: default 9999, used to specify server port number
 - `TLSER_PROTOCOL`: set to `dtls` or `tls` (default)
 - `TLSER_TLS_VERSIONS`: comma separated verstions. e.g. `1.1,1.2,1.3`

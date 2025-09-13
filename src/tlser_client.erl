@@ -32,7 +32,7 @@ init([]) ->
             {protocol, tlser:protocol()},
             {versions, tlser:versions()},
             {ciphers, tlser:cipher_suites(client)},
-            {log_level, debug}
+            {log_level, tlser:log_level()}
            ] ++ max_fragment_length(),
     io:format(user, "client> connecting to server ~s:~p~n", [server_host(), server_port()]),
     {ok, Socket} =
