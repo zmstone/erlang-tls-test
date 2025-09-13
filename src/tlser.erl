@@ -28,7 +28,7 @@ protocol() ->
 versions() -> versions(protocol()).
 
 versions(dtls) -> ['dtlsv1.2'];
-versions(tls) -> ['tlsv1.2', 'tlsv1.1'].
+versions(tls) -> ['tlsv1.3','tlsv1.2'].
 
 server_port() ->
     case os:getenv("TLSER_SERVER_PORT") of
@@ -53,9 +53,8 @@ cert_dir() ->
 certs_dir() ->
     case os:getenv("TLSER_CERTS") of
        false -> rsa;
-       "rsa" -> rsa;
-       "ecc" -> ecc;
-       "vendor" -> vendor
+       "vendor" -> vendor;
+        Dir -> Dir
     end.
 
 which_side() ->
