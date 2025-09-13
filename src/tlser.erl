@@ -11,11 +11,13 @@
         ]).
 
 cipher_suites(server) ->
-    ssl:cipher_suites(all, 'tlsv1.2', openssl);
-cipher_suites(client) ->
-    %ssl:cipher_suites(all, 'tlsv1.2', openssl).
     case os:getenv("TLSER_CLIENT_CIPHERS") of
-        false -> ["ECDHE-ECDSA-AES256-GCM-SHA384", "ECDHE-RSA-AES256-GCM-SHA384"];
+        false -> ssl:cipher_suites(all, 'tlsv1.2', openssl) ++ tls_v13_ciphers();
+        Other -> string:tokens(Other, ",")
+    end;
+cipher_suites(client) ->
+    case os:getenv("TLSER_CLIENT_CIPHERS") of
+        false -> ssl:cipher_suites(all, 'tlsv1.2', openssl) ++ tls_v13_ciphers();
         Other -> string:tokens(Other, ",")
     end.
 
@@ -28,7 +30,20 @@ protocol() ->
 versions() -> versions(protocol()).
 
 versions(dtls) -> ['dtlsv1.2'];
-versions(tls) -> ['tlsv1.3','tlsv1.2'].
+versions(tls) ->
+    case os:getenv("TLSER_TLS_ERSIONS") of
+        false ->
+            ['tlsv1.3','tlsv1.2'];
+        Other ->
+            parse_versions(Other)
+    end.
+
+parse_versions(Str) ->
+    [parse_version(Token) || Token <- string:tokens(Str, ",")].
+
+parse_version("1.1") -> 'tlsv1.1';
+parse_version("1.2") -> 'tlsv1.2';
+parse_version("1.3") -> 'tlsv1.3'.
 
 server_port() ->
     case os:getenv("TLSER_SERVER_PORT") of
