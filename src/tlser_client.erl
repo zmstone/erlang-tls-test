@@ -33,7 +33,7 @@ init([]) ->
             {versions, tlser:versions()},
             {ciphers, tlser:cipher_suites(client)},
             {log_level, debug}
-           ],
+           ] ++ max_fragment_length(),
     io:format(user, "client> connecting to server ~s:~p~n", [server_host(), server_port()]),
     {ok, Socket} =
         try
@@ -63,3 +63,12 @@ server_host() ->
     end.
 
 server_port() -> tlser:server_port().
+
+max_fragment_length() ->
+    case os:getenv("TLSER_MAX_FRAGMENT_LENTH") of
+        false ->
+            [];
+        Int ->
+            Max = list_to_integer(Int),
+            [{max_fragment_length, Max}]
+    end.
