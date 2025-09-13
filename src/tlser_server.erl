@@ -47,13 +47,25 @@ handle_event(enter, _OldState, listening, #{listening := ListenSock} = D) ->
     io:format(user, "server> listening~n", []),
     {ok, Socket0} = ssl:transport_accept(ListenSock),
     {ok, Socket} = ssl:handshake(Socket0),
-    io:format(user, "server> accpted one client~n~p~n", [ssl:negotiated_protocol(Socket)]),
+    io:format(user, "server> accepted one client: negotiated_protocol?=~0p~n", [ssl:negotiated_protocol(Socket)]),
     {next_state, listening, D, [{state_timeout, 0, {accepted, Socket}}]};
 handle_event(state_timeout, {accepted, Sock}, listening, D) ->
     {next_state, accepted, D#{accepted => Sock}};
+handle_event(enter, _OldState, accepted, _Data) ->
+    keep_state_and_data;
 handle_event(info, {ssl_closed, Sock}, accepted, #{accepted := Sock} = D) ->
     ssl:close(Sock),
     {next_state, listening, D};
-handle_event(EventType, Event, accepted, _Data) ->
-    io:format(user, "server> ignored event: ~p: ~0p~n", [EventType, Event]),
+handle_event(info, {ssl, Sock, Msg}, accepted, #{accepted := Sock}) ->
+    io:format(user, "server> received message: ~ts~n", [Msg]),
+    case Msg of
+        "ping" ->
+            ssl:send(Sock, "pong");
+        _ ->
+            io:format(user, "server> ignored message: ~ts~n", [Msg]),
+            ok
+    end,
+    keep_state_and_data;
+handle_event(EventType, Event, accepted, Data) ->
+    io:format(user, "server> ignored event: ~p: ~0p~n~p", [EventType, Event,Data]),
     keep_state_and_data.

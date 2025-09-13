@@ -50,7 +50,10 @@ callback_mode() ->
     handle_event_function.
 
 handle_event(state_timeout, send, _State, #{socket := Socket}) ->
-    ssl:send(Socket, "hey"),
+    ssl:send(Socket, "ping"),
+    keep_state_and_data;
+handle_event(info, {ssl, Socket, Msg}, _State, #{socket := Socket}) ->
+    io:format(user, "client> received message: ~ts~n", [Msg]),
     {keep_state_and_data, [{state_timeout, 5000, send}]};
 handle_event(EventType, Event, _State, _Data) ->
     io:format(user, "client> ignored event: ~p: ~p~n", [EventType, Event]),
